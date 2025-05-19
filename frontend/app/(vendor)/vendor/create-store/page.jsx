@@ -41,6 +41,7 @@ export default function CreateStore() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingStore, setCheckingStore] = useState(true);
   const [locationStatus, setLocationStatus] = useState("idle"); // idle, loading, success, error
   const router = useRouter();
   const { user } = useAuth();
@@ -49,7 +50,10 @@ export default function CreateStore() {
   useEffect(() => {
     const checkStore = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/stores/me/store");
+        setCheckingStore(true);
+        const res = await fetch("/api/stores/me/store", {
+          credentials: "include" // Important for sending cookies
+        });
 
         if (res.ok) {
           // User already has a store, redirect to dashboard
@@ -58,6 +62,8 @@ export default function CreateStore() {
       } catch (error) {
         // No store exists, stay on this page
         console.error("Error checking store:", error);
+      } finally {
+        setCheckingStore(false);
       }
     };
 
@@ -145,12 +151,13 @@ export default function CreateStore() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/stores", {
+      const res = await fetch("/api/stores", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        credentials: "include" // Important for sending cookies
       });
 
       const data = await res.json();
@@ -168,6 +175,14 @@ export default function CreateStore() {
       setIsLoading(false);
     }
   };
+
+  if (checkingStore) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 max-w-3xl">
