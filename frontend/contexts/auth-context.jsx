@@ -15,7 +15,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me");
+        const res = await fetch("/api/auth/me", {
+          credentials: "include" // Important for sending cookies
+        });
         if (res.ok) {
           const data = await res.json();
           setUser(data.data.user);
@@ -37,12 +39,13 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
+        credentials: "include" // Important for receiving cookies
       });
 
       const data = await res.json();
@@ -68,12 +71,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: "include" // Important for receiving cookies
       });
 
       const data = await res.json();
@@ -98,8 +102,9 @@ export const AuthProvider = ({ children }) => {
   // Logout user
   const logout = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/logout", {
-        method: "POST"
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include"
       });
 
       if (res.ok) {
@@ -118,7 +123,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:5000/api/auth/forgot-password",
+        "/api/auth/forgot-password",
         {
           method: "POST",
           headers: {
