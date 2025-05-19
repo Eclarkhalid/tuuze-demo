@@ -1,3 +1,4 @@
+// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -23,13 +24,32 @@ app.use(cors({
   credentials: true
 }));
 
-// Routes (will add these later)
+// Routes
 app.get('/', (req, res) => {
   res.send('Tuuze API is running...');
 });
 
 const authRoutes = require('./routes/auth');
+const storeRoutes = require('./routes/store');
+const productRoutes = require('./routes/product');
+const orderRoutes = require('./routes/order');
+const adminRoutes = require('./routes/admin');
+
 app.use('/api/auth', authRoutes);
+app.use('/api/stores', storeRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;

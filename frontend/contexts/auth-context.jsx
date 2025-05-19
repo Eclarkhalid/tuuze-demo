@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { Toast } from '@/lib/toast';
-import { useRouter } from 'next/navigation';
+import { createContext, useContext, useState, useEffect } from "react";
+import { Toast } from "@/lib/toast";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext({});
 
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       try {
-        const res = await fetch('/api/auth/me');
+        const res = await fetch("http://localhost:5000/api/auth/me");
         if (res.ok) {
           const data = await res.json();
           setUser(data.data.user);
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
           setUser(null);
         }
       } catch (error) {
-        console.error('Error checking authentication:', error);
+        console.error("Error checking authentication:", error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -37,10 +37,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(userData)
       });
@@ -49,15 +49,15 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok) {
         setUser(data.data.user);
-        Toast.success('Registration successful');
+        Toast.success("Registration successful");
         return true;
       } else {
-        Toast.error(data.message || 'Registration failed');
+        Toast.error(data.message || "Registration failed");
         return false;
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      Toast.error('An error occurred during registration');
+      console.error("Registration error:", error);
+      Toast.error("An error occurred during registration");
       return false;
     } finally {
       setLoading(false);
@@ -68,10 +68,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ email, password })
       });
@@ -80,15 +80,15 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok) {
         setUser(data.data.user);
-        Toast.success('Login successful');
+        Toast.success("Login successful");
         return true;
       } else {
-        Toast.error(data.message || 'Login failed');
+        Toast.error(data.message || "Login failed");
         return false;
       }
     } catch (error) {
-      console.error('Login error:', error);
-      Toast.error('An error occurred during login');
+      console.error("Login error:", error);
+      Toast.error("An error occurred during login");
       return false;
     } finally {
       setLoading(false);
@@ -98,18 +98,18 @@ export const AuthProvider = ({ children }) => {
   // Logout user
   const logout = async () => {
     try {
-      const res = await fetch('/api/auth/logout', {
-        method: 'POST'
+      const res = await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST"
       });
 
       if (res.ok) {
         setUser(null);
-        Toast.success('Logged out successfully');
-        router.push('/login');
+        Toast.success("Logged out successfully");
+        router.push("/login");
       }
     } catch (error) {
-      console.error('Logout error:', error);
-      Toast.error('An error occurred during logout');
+      console.error("Logout error:", error);
+      Toast.error("An error occurred during logout");
     }
   };
 
@@ -117,26 +117,29 @@ export const AuthProvider = ({ children }) => {
   const forgotPassword = async (email) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email })
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
-        Toast.success('Password reset instructions sent to your email');
+        Toast.success("Password reset instructions sent to your email");
         return true;
       } else {
-        Toast.error(data.message || 'Failed to send password reset');
+        Toast.error(data.message || "Failed to send password reset");
         return false;
       }
     } catch (error) {
-      console.error('Forgot password error:', error);
-      Toast.error('An error occurred');
+      console.error("Forgot password error:", error);
+      Toast.error("An error occurred");
       return false;
     } finally {
       setLoading(false);
@@ -148,9 +151,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/auth/reset-password/${token}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ password })
       });
@@ -159,16 +162,16 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok) {
         setUser(data.data.user);
-        Toast.success('Password reset successful');
-        router.push('/');
+        Toast.success("Password reset successful");
+        router.push("/");
         return true;
       } else {
-        Toast.error(data.message || 'Failed to reset password');
+        Toast.error(data.message || "Failed to reset password");
         return false;
       }
     } catch (error) {
-      console.error('Reset password error:', error);
-      Toast.error('An error occurred');
+      console.error("Reset password error:", error);
+      Toast.error("An error occurred");
       return false;
     } finally {
       setLoading(false);
