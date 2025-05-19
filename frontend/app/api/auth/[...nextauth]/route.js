@@ -3,7 +3,12 @@ import { NextResponse } from 'next/server';
 // This route handler will forward requests to the backend API
 async function handler(req, { params }) {
   const authPath = params.nextauth.join('/');
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/${authPath}`;
+  
+  // Determine the backend API URL, using either environment variable or default
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/${authPath}`;
+  
+  // Extract cookies from the request to forward them
+  const cookies = req.headers.get('Cookie') || '';
   
   try {
     // Forward the request to the backend with the same method and body
@@ -14,8 +19,8 @@ async function handler(req, { params }) {
         ...(req.headers.get('Authorization') && {
           'Authorization': req.headers.get('Authorization')
         }),
-        ...(req.headers.get('Cookie') && {
-          'Cookie': req.headers.get('Cookie')
+        ...(cookies && {
+          'Cookie': cookies
         })
       },
       body: req.method !== 'GET' ? JSON.stringify(await req.json()) : undefined,
@@ -27,7 +32,14 @@ async function handler(req, { params }) {
     // If the response includes a token, set it as a cookie
     const responseHeaders = new Headers();
     
-    if (data.token) {
+    // Get cookies from the backend response
+    const setCookieHeader = response.headers.get('Set-Cookie');
+    
+    if (setCookieHeader) {
+      // Forward Set-Cookie header from backend
+      responseHeaders.append('Set-Cookie', setCookieHeader);
+    } else if (data.token) {
+      // Fallback: set cookie manually if no Set-Cookie header but token exists
       const cookieOptions = [
         `jwt=${data.token}`,
         `Path=/`,
