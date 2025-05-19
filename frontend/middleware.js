@@ -1,20 +1,26 @@
+// frontend/middleware.js
 import { NextResponse } from 'next/server';
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request) {
   const { pathname } = request.nextUrl;
+  
+  // Define paths patterns
   const isPublicPath = 
     pathname.startsWith('/login') || 
     pathname.startsWith('/register') || 
     pathname.startsWith('/forgot-password') || 
     pathname.startsWith('/reset-password');
   
+  const isVendorPath = pathname.startsWith('/vendor');
+  const isAdminPath = pathname.startsWith('/admin');
+  
   // Get the auth token from the cookies
   const token = request.cookies.get('jwt')?.value;
   
   // If trying to access authenticated route without token, redirect to login
   if (!isPublicPath && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(`/login?redirect=${encodeURIComponent(pathname)}`, request.url));
   }
   
   // If trying to access auth routes while already logged in, redirect to home
@@ -25,7 +31,7 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
+// Match all paths except for static assets, API routes, etc.
 export const config = {
   matcher: [
     /*
